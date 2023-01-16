@@ -1,10 +1,10 @@
 {
   "name": "@elevator-robot/cdk-s3-site",
-  "version": "1.0.3",
+  "version": "1.0.7",
   "description": "CDK construct to create a publicly hosted s3 static site",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "type": "commonjs",
+  "type": "module",
   "scripts": {
     "test": "tsc --build tsconfig.json && jest --runInBand",
     "build": "tsc --build tsconfig.json",

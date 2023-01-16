@@ -4,7 +4,7 @@
 // const HostedSite = require("./index").HostedSite;
 import { HostedSite } from "./index";
 import { App, Stack } from "aws-cdk-lib";
-import { Template, Match, Capture } from "aws-cdk-lib/assertions";
+import { Template } from "aws-cdk-lib/assertions";
 
 describe("Test", () => {
     test("synthesizes the way we expect", () => {
