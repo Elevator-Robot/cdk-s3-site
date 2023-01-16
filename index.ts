@@ -24,7 +24,7 @@ interface IStaticSiteProps {
 /**
  * Hosted Site Construct
  */
-class HostedSite extends Construct {
+export class HostedSite extends Construct {
     /**
      * @param scope - scope as Construct
      * @param id    - identifier
@@ -95,6 +95,3 @@ class HostedSite extends Construct {
         });
     }
 }
-
-export default HostedSite;
-

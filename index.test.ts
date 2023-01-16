@@ -2,7 +2,7 @@
 // const App = require("aws-cdk-lib").App;
 // const Stack = require("aws-cdk-lib").Stack;
 // const HostedSite = require("./index").HostedSite;
-import HostedSite from "./index";
+import { HostedSite } from "./index";
 import { App, Stack } from "aws-cdk-lib";
 import { Template, Match, Capture } from "aws-cdk-lib/assertions";
 
