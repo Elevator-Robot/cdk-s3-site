@@ -39,6 +39,7 @@ export class HostedSite extends Construct {
             removalPolicy: RemovalPolicy.DESTROY,
             autoDeleteObjects: true,
             websiteIndexDocument: 'index.html',
+            websiteErrorDocument: 'index.html',
             versioned: true,
             encryption: BucketEncryption.S3_MANAGED,
         });
