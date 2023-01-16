@@ -24,7 +24,7 @@ interface IStaticSiteProps {
 /**
  * Hosted Site Construct
  */
-export class HostedSite extends Construct {
+class HostedSite extends Construct {
     /**
      * @param scope - scope as Construct
      * @param id    - identifier
@@ -93,7 +93,8 @@ export class HostedSite extends Construct {
         new CfnOutput(stack, 'DomainName', {
             value: record.domainName,
         });
-
-
     }
 }
+
+export default HostedSite;
+
