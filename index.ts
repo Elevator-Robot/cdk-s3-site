@@ -39,7 +39,6 @@ export class HostedSite extends Construct {
             removalPolicy: RemovalPolicy.DESTROY,
             autoDeleteObjects: true,
             websiteIndexDocument: 'index.html',
-            websiteErrorDocument: 'index.html',
             versioned: true,
             encryption: BucketEncryption.S3_MANAGED,
         });
@@ -52,11 +51,6 @@ export class HostedSite extends Construct {
             domainName: props.domainName,
             hostedZone: zone,
             region: 'us-east-1',
-        });
-
-        new BucketDeployment(stack, 'DeployToBucket', {
-            sources: [Source.asset(props.webAssetPath)],
-            destinationBucket: bucket,
         });
 
         const distribution = new Distribution(stack, 'Distribution', {
@@ -89,6 +83,15 @@ export class HostedSite extends Construct {
             deleteExisting: true,
             ttl: Duration.seconds(60),
         });
+
+        new BucketDeployment(stack, 'DeployToBucket', {
+            sources: [Source.asset(props.webAssetPath)],
+            destinationBucket: bucket,
+            distribution
+        });
+
+        // make sure bucket has correct policy
+        // bucket.grantPublicAccess();
 
         new CfnOutput(stack, 'DomainName', {
             value: record.domainName,
