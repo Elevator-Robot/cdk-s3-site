@@ -90,9 +90,6 @@ export class HostedSite extends Construct {
             distribution
         });
 
-        // make sure bucket has correct policy
-        // bucket.grantPublicAccess();
-
         new CfnOutput(stack, 'DomainName', {
             value: record.domainName,
         });

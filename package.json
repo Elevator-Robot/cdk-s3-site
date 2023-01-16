@@ -1,15 +1,14 @@
 {
   "name": "@elevator-robot/cdk-s3-site",
-  "version": "1.0.11",
+  "version": "1.0.12",
   "description": "CDK construct to create a publicly hosted s3 static site",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "type": "commonjs",
   "scripts": {
-    "test": "tsc --build tsconfig.json && jest --runInBand",
+    "test": "tsc --build tsconfig.json && jest --runInBand --coverage",
     "build": "tsc --build tsconfig.json",
-    "watch": "tsc --build tsconfig.json --watch",
-    "ci": "npm run build && npm run test"
+    "watch": "tsc --build tsconfig.json --watch"
   },
   "files": [
     "dist"
