@@ -4,7 +4,7 @@
   "description": "CDK construct to create a publicly hosted s3 static site",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "type": "module",
+  "type": "commonjs",
   "scripts": {
     "test": "tsc --build tsconfig.json && jest --runInBand",
     "build": "tsc --build tsconfig.json",
