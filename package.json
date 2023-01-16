@@ -1,6 +1,6 @@
 {
-  "name": "cdk-s3-site",
-  "version": "1.0.0",
+  "name": "@elevator-robot/cdk-s3-site",
+  "version": "1.0.1",
   "description": "CDK construct to create a publicly hosted s3 static site",
   "main": "index.js",
   "type": "module",
