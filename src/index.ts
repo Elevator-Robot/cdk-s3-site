@@ -80,8 +80,7 @@ export class HostedSite extends Construct {
 
         bucket.addToResourcePolicy(new PolicyStatement({
             actions: ['s3:GetObject'],
-            // resources: [bucket.arnForObjects('*')],
-            resources: [bucket.bucketArn],
+            resources: [bucket.arnForObjects('*')],
             principals: [new ServicePrincipal('cloudfront.amazonaws.com')],
             effect: Effect.ALLOW,
             conditions: {
