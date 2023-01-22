@@ -9,6 +9,7 @@ import { Distribution, AllowedMethods, ViewerProtocolPolicy } from 'aws-cdk-lib/
 import { S3Origin } from 'aws-cdk-lib/aws-cloudfront-origins';
 import { PolicyStatement, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
 import { CloudFrontTarget } from 'aws-cdk-lib/aws-route53-targets';
+import { Effect } from 'aws-cdk-lib/aws-iam';
 
 /**
  * IStaticSiteProps
@@ -44,6 +45,8 @@ export class HostedSite extends Construct {
             encryption: BucketEncryption.S3_MANAGED,
         });
 
+        bucket.grantPublicAccess('*', 's3:GetObject');
+
         const zone = HostedZone.fromLookup(stack, 'Zone', {
             domainName: props.domainName,
         });
@@ -68,10 +71,19 @@ export class HostedSite extends Construct {
             defaultRootObject: 'index.html',
         });
 
+        new BucketDeployment(stack, 'DeployToBucket', {
+            sources: [Source.asset(props.webAssetPath)],
+            destinationBucket: bucket,
+            distribution,
+            distributionPaths: ['/*'],
+        });
+
         bucket.addToResourcePolicy(new PolicyStatement({
             actions: ['s3:GetObject'],
-            resources: [bucket.arnForObjects('*')],
+            // resources: [bucket.arnForObjects('*')],
+            resources: [bucket.bucketArn],
             principals: [new ServicePrincipal('cloudfront.amazonaws.com')],
+            effect: Effect.ALLOW,
             conditions: {
                 StringEquals: { 'aws:Referer': certificate.certificateArn }
             },
@@ -82,13 +94,7 @@ export class HostedSite extends Construct {
             recordName: props.domainName,
             target: RecordTarget.fromAlias(new CloudFrontTarget(distribution)),
             deleteExisting: true,
-            ttl: Duration.seconds(60),
-        });
-
-        new BucketDeployment(stack, 'DeployToBucket', {
-            sources: [Source.asset(props.webAssetPath)],
-            destinationBucket: bucket,
-            distribution
+            ttl: Duration.seconds(30),
         });
 
         new CfnOutput(stack, 'DomainName', {
