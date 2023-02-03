@@ -7,9 +7,7 @@ import { DnsValidatedCertificate } from 'aws-cdk-lib/aws-certificatemanager';
 import { BucketDeployment, Source } from 'aws-cdk-lib/aws-s3-deployment';
 import { Distribution, AllowedMethods, ViewerProtocolPolicy } from 'aws-cdk-lib/aws-cloudfront';
 import { S3Origin } from 'aws-cdk-lib/aws-cloudfront-origins';
-import { PolicyStatement, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
 import { CloudFrontTarget } from 'aws-cdk-lib/aws-route53-targets';
-import { Effect } from 'aws-cdk-lib/aws-iam';
 
 /**
  * IStaticSiteProps
