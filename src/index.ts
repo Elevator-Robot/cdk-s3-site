@@ -81,16 +81,6 @@ export class HostedSite extends Construct {
             distributionPaths: ['/*'],
         });
 
-        bucket.addToResourcePolicy(new PolicyStatement({
-            actions: ['s3:GetObject'],
-            resources: ['*'],
-            principals: [new ServicePrincipal('cloudfront.amazonaws.com')],
-            effect: Effect.ALLOW,
-            conditions: {
-                StringEquals: { 'aws:Referer': certificate.certificateArn }
-            },
-        }));
-
         const record = new ARecord(stack, 'AliasRecord', {
             zone,
             recordName,
