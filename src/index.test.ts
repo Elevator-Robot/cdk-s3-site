@@ -16,7 +16,8 @@ describe("Test", () => {
 
         // Create the StateMachineStack.
         new HostedSite(stack, "HostedSite", {
-            domainName: "example.com",
+            zoneName: "elevator-robot.com",
+            subDomain: "test",
             webAssetPath: "./",
         });
 
@@ -38,7 +39,7 @@ describe("Test", () => {
         });
 
         Template.fromStack(stack).hasResourceProperties("AWS::Route53::RecordSet", {
-            Name: "example.com.",
+            Name: "test.elevator-robot.com.",
             Type: "A",
         });
 

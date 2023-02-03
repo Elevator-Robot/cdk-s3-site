@@ -18,7 +18,7 @@ import { Effect } from 'aws-cdk-lib/aws-iam';
  * @property webAssetPath -  Path to your web asset build folder [e.g. .dist || .build || .out]
  */
 interface IStaticSiteProps {
-    readonly domainName: string;
+    readonly zoneName: string;
     readonly webAssetPath: string;
     readonly subDomain?: string;
 }
@@ -49,13 +49,15 @@ export class HostedSite extends Construct {
         bucket.grantPublicAccess('*', 's3:GetObject');
 
         const zone = HostedZone.fromLookup(stack, 'Zone', {
-            domainName: props.domainName,
+            domainName: props.zoneName,
         });
 
+        const recordName = props.subDomain ? `${props.subDomain}.${zone.zoneName}` : zone.zoneName;
+
         const certificate = new DnsValidatedCertificate(stack, 'Certificate', {
-            domainName: props.domainName,
+            domainName: recordName,
             hostedZone: zone,
-            region: 'us-east-1',
+            region: stack.region
         });
 
         const distribution = new Distribution(stack, 'Distribution', {
@@ -65,7 +67,7 @@ export class HostedSite extends Construct {
                 viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS
             },
             enabled: true,
-            domainNames: [props.domainName],
+            domainNames: [recordName],
             certificate: certificate,
             enableLogging: true,
             logFilePrefix: 'aaronwest.me/distribution-logs',
@@ -81,7 +83,7 @@ export class HostedSite extends Construct {
 
         bucket.addToResourcePolicy(new PolicyStatement({
             actions: ['s3:GetObject'],
-            resources: [bucket.arnForObjects('*')],
+            resources: ['*'],
             principals: [new ServicePrincipal('cloudfront.amazonaws.com')],
             effect: Effect.ALLOW,
             conditions: {
@@ -89,11 +91,9 @@ export class HostedSite extends Construct {
             },
         }));
 
-        const domainName = props.subDomain ? `${props.subDomain}.${props.domainName}` : props.domainName;
-
         const record = new ARecord(stack, 'AliasRecord', {
             zone,
-            recordName: domainName,
+            recordName,
             target: RecordTarget.fromAlias(new CloudFrontTarget(distribution)),
             deleteExisting: true,
             ttl: Duration.seconds(30),
