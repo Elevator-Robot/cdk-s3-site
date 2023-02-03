@@ -20,6 +20,7 @@ import { Effect } from 'aws-cdk-lib/aws-iam';
 interface IStaticSiteProps {
     readonly domainName: string;
     readonly webAssetPath: string;
+    readonly subDomain?: string;
 }
 
 /**
@@ -88,9 +89,11 @@ export class HostedSite extends Construct {
             },
         }));
 
+        const domainName = props.subDomain ? `${props.subDomain}.${props.domainName}` : props.domainName;
+
         const record = new ARecord(stack, 'AliasRecord', {
             zone,
-            recordName: props.domainName,
+            recordName: domainName,
             target: RecordTarget.fromAlias(new CloudFrontTarget(distribution)),
             deleteExisting: true,
             ttl: Duration.seconds(30),
