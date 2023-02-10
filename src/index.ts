@@ -7,7 +7,7 @@ import { DnsValidatedCertificate } from 'aws-cdk-lib/aws-certificatemanager';
 import { BucketDeployment, Source } from 'aws-cdk-lib/aws-s3-deployment';
 import { Distribution, AllowedMethods, ViewerProtocolPolicy } from 'aws-cdk-lib/aws-cloudfront';
 import { S3Origin } from 'aws-cdk-lib/aws-cloudfront-origins';
-import { CloudFrontTarget } from 'aws-cdk-lib/aws-route53-targets';
+import { CloudFrontTarget,  } from 'aws-cdk-lib/aws-route53-targets';
 
 /**
  * IStaticSiteProps
@@ -19,6 +19,8 @@ interface IStaticSiteProps {
     readonly zoneName: string;
     readonly webAssetPath: string;
     readonly subDomain?: string;
+    readonly websiteIndexDocument?: string;
+    readonly websiteErrorDocument?: string;
 }
 
 /**
@@ -38,8 +40,8 @@ export class HostedSite extends Construct {
         const bucket = new Bucket(stack, 'Bucket', {
             removalPolicy: RemovalPolicy.DESTROY,
             autoDeleteObjects: true,
-            websiteIndexDocument: 'index.html',
-            websiteErrorDocument: 'index.html',
+            websiteIndexDocument: props.websiteIndexDocument || 'index.html',
+            websiteErrorDocument: props.websiteErrorDocument || 'index.html',
             versioned: true,
             encryption: BucketEncryption.S3_MANAGED,
         });
