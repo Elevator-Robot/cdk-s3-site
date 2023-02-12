@@ -44,6 +44,12 @@ export class HostedSite extends Construct {
             websiteErrorDocument: props.websiteErrorDocument || 'index.html',
             versioned: true,
             encryption: BucketEncryption.S3_MANAGED,
+            serverAccessLogsBucket: new Bucket(stack, 'BucketAccessLogs', {
+                removalPolicy: RemovalPolicy.DESTROY,
+                autoDeleteObjects: true,
+                versioned: false,
+                encryption: BucketEncryption.S3_MANAGED,
+            }),
         });
 
         bucket.grantPublicAccess('*', 's3:GetObject');
