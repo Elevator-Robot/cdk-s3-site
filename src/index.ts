@@ -9,6 +9,11 @@ import { Distribution, AllowedMethods, ViewerProtocolPolicy } from 'aws-cdk-lib/
 import { S3Origin } from 'aws-cdk-lib/aws-cloudfront-origins';
 import { CloudFrontTarget,  } from 'aws-cdk-lib/aws-route53-targets';
 
+// import {CfnRealtimeLogConfig} from 'aws-cdk-lib/aws-cloudfront';
+// import { Stream } from 'aws-cdk-lib/aws-kinesis';
+
+// import { Role, ServicePrincipal, ManagedPolicy } from 'aws-cdk-lib/aws-iam';
+
 /**
  * IStaticSiteProps
  * @readonly
@@ -36,7 +41,6 @@ export class HostedSite extends Construct {
         super(scope, id);
 
         const stack = Stack.of(this);
-
         const bucket = new Bucket(stack, 'Bucket', {
             removalPolicy: RemovalPolicy.DESTROY,
             autoDeleteObjects: true,
@@ -66,6 +70,13 @@ export class HostedSite extends Construct {
             region: stack.region
         });
 
+        const distributionLogBucket = new Bucket(stack, 'DistributionLogBucket', {
+            removalPolicy: RemovalPolicy.DESTROY,
+            autoDeleteObjects: true,
+            versioned: false,
+            encryption: BucketEncryption.S3_MANAGED
+        });
+
         const distribution = new Distribution(stack, 'Distribution', {
             defaultBehavior: {
                 origin: new S3Origin(bucket),
@@ -78,6 +89,7 @@ export class HostedSite extends Construct {
             enableLogging: true,
             logFilePrefix: 'aaronwest.me/distribution-logs',
             defaultRootObject: 'index.html',
+            logBucket: distributionLogBucket
         });
 
         new BucketDeployment(stack, 'DeployToBucket', {
@@ -94,6 +106,45 @@ export class HostedSite extends Construct {
             deleteExisting: true,
             ttl: Duration.seconds(30),
         });
+
+        // const stream = new Stream(stack, 'Stream', {
+        //     shardCount: 1,
+        //     retentionPeriod: Duration.days(1),
+        // });
+
+        // // create an IResolvable for the stream arn
+        // const streamArn = stream.streamArn;
+
+        // // create a new CloudFront Realtime Log role
+        // const logRole = new Role(stack, 'LogRole', {
+        //     assumedBy: new ServicePrincipal('cloudfront.amazonaws.com'),
+        //     managedPolicies: [
+        //         ManagedPolicy.fromAwsManagedPolicyName('AdministratorAccess')
+        //     ]
+        // });
+
+        // new CfnRealtimeLogConfig(stack, 'RealtimeLogConfig', {
+        //     endPoints: [
+        //         {
+        //             streamType: 'Kinesis',
+        //             kinesisStreamConfig: {
+        //                 streamArn: streamArn,
+        //                 roleArn: logRole.roleArn
+        //             }
+        //         }
+        //     ],
+        //     name: 'CloudFrontRealtimeLogConfig',
+        //     samplingRate: 100,
+        //     fields: [
+        //         'date',
+        //         'time',
+        //         'x-edge-location',
+        //         'sc-bytes',
+        //         'c-ip',
+        //         'cs-method',
+        //         'cs(Host)',
+        //     ]
+        // });
 
         new CfnOutput(stack, 'DomainName', {
             value: record.domainName,
