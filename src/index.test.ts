@@ -15,7 +15,7 @@ describe("Test", () => {
         });
 
         // Create the StateMachineStack.
-        const site = new HostedSite(stack, "HostedSite", {
+        new HostedSite(stack, "HostedSite", {
             zoneName: "elevator-robot.com",
             subDomain: "test",
             webAssetPath: "./",
