@@ -69,13 +69,6 @@ export class HostedSite extends Construct {
             validation: CertificateValidation.fromDns(zone),
         });
 
-        const distributionLogBucket = new Bucket(stack, 'DistributionLogBucket', {
-            removalPolicy: RemovalPolicy.DESTROY,
-            autoDeleteObjects: true,
-            versioned: false,
-            encryption: BucketEncryption.S3_MANAGED
-        });
-
         const distribution = new Distribution(stack, 'Distribution', {
             defaultBehavior: {
                 origin: new S3Origin(bucket),
@@ -87,9 +80,14 @@ export class HostedSite extends Construct {
             certificate: certificate,
             sslSupportMethod: SSLMethod.SNI,
             enableLogging: true,
-            logFilePrefix: 'aaronwest.me/distribution-logs',
+            logFilePrefix: `${stack.stackName}/distribution-logs`,
             defaultRootObject: 'index.html',
-            logBucket: distributionLogBucket,
+            logBucket: new Bucket(stack, 'DistributionLogBucket', {
+                removalPolicy: RemovalPolicy.DESTROY,
+                autoDeleteObjects: true,
+                versioned: false,
+                encryption: BucketEncryption.S3_MANAGED
+            }),
             priceClass: PriceClass.PRICE_CLASS_100,
         });
 
