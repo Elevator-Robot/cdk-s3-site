@@ -3,7 +3,7 @@ import { Construct } from 'constructs';
 
 import { Bucket, BucketEncryption } from 'aws-cdk-lib/aws-s3';
 import { RecordTarget, ARecord, HostedZone } from 'aws-cdk-lib/aws-route53';
-import { Certificate, DnsValidatedCertificate } from 'aws-cdk-lib/aws-certificatemanager';
+import { Certificate, CertificateValidation } from 'aws-cdk-lib/aws-certificatemanager';
 import { BucketDeployment, Source } from 'aws-cdk-lib/aws-s3-deployment';
 import { Distribution, AllowedMethods, ViewerProtocolPolicy, PriceClass, SSLMethod } from 'aws-cdk-lib/aws-cloudfront';
 import { S3Origin } from 'aws-cdk-lib/aws-cloudfront-origins';
@@ -64,10 +64,9 @@ export class HostedSite extends Construct {
 
         const recordName = props.subDomain ? `${props.subDomain}.${zone.zoneName}` : zone.zoneName;
 
-        const certificate = new DnsValidatedCertificate(stack, 'Certificate', {
+        const certificate = new Certificate(stack, 'Certificate', {
             domainName: recordName,
-            hostedZone: zone,
-            region: stack.region
+            validation: CertificateValidation.fromDns(zone),
         });
 
         const distributionLogBucket = new Bucket(stack, 'DistributionLogBucket', {
