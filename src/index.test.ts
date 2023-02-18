@@ -15,7 +15,7 @@ describe("Test", () => {
         });
 
         // Create the StateMachineStack.
-        new HostedSite(stack, "HostedSite", {
+        const site = new HostedSite(stack, "HostedSite", {
             zoneName: "elevator-robot.com",
             subDomain: "test",
             webAssetPath: "./",
@@ -43,5 +43,22 @@ describe("Test", () => {
             Type: "A",
         });
 
+        Template.fromStack(stack).hasResourceProperties("AWS::CloudFront::Distribution", {
+            DistributionConfig: {
+                Aliases: [
+                    "test.elevator-robot.com",
+                ],
+                DefaultCacheBehavior: {
+                    AllowedMethods: [
+                        "GET",
+                        "HEAD",
+                    ],
+                    Compress: true,
+                },
+                Enabled: true,
+            },
+        });
+
     });
+
 });
