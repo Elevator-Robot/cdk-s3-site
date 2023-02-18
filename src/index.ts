@@ -3,16 +3,11 @@ import { Construct } from 'constructs';
 
 import { Bucket, BucketEncryption } from 'aws-cdk-lib/aws-s3';
 import { RecordTarget, ARecord, HostedZone } from 'aws-cdk-lib/aws-route53';
-import { DnsValidatedCertificate } from 'aws-cdk-lib/aws-certificatemanager';
+import { Certificate, DnsValidatedCertificate } from 'aws-cdk-lib/aws-certificatemanager';
 import { BucketDeployment, Source } from 'aws-cdk-lib/aws-s3-deployment';
-import { Distribution, AllowedMethods, ViewerProtocolPolicy } from 'aws-cdk-lib/aws-cloudfront';
+import { Distribution, AllowedMethods, ViewerProtocolPolicy, PriceClass, SSLMethod } from 'aws-cdk-lib/aws-cloudfront';
 import { S3Origin } from 'aws-cdk-lib/aws-cloudfront-origins';
-import { CloudFrontTarget,  } from 'aws-cdk-lib/aws-route53-targets';
-
-// import {CfnRealtimeLogConfig} from 'aws-cdk-lib/aws-cloudfront';
-// import { Stream } from 'aws-cdk-lib/aws-kinesis';
-
-// import { Role, ServicePrincipal, ManagedPolicy } from 'aws-cdk-lib/aws-iam';
+import { CloudFrontTarget } from 'aws-cdk-lib/aws-route53-targets';
 
 /**
  * IStaticSiteProps
@@ -37,11 +32,16 @@ export class HostedSite extends Construct {
      * @param id    - identifier
      * @param props - IStaticSiteProps
      */
+
+    bucket: Bucket;
+    distribution: Distribution;
+    certificate: Certificate;
     constructor(scope: Construct, id: string, props: IStaticSiteProps) {
         super(scope, id);
 
         const stack = Stack.of(this);
         const bucket = new Bucket(stack, 'Bucket', {
+            bucketName: `${stack.account}-bucket`,
             removalPolicy: RemovalPolicy.DESTROY,
             autoDeleteObjects: true,
             websiteIndexDocument: props.websiteIndexDocument || 'index.html',
@@ -86,10 +86,12 @@ export class HostedSite extends Construct {
             enabled: true,
             domainNames: [recordName],
             certificate: certificate,
+            sslSupportMethod: SSLMethod.SNI,
             enableLogging: true,
             logFilePrefix: 'aaronwest.me/distribution-logs',
             defaultRootObject: 'index.html',
-            logBucket: distributionLogBucket
+            logBucket: distributionLogBucket,
+            priceClass: PriceClass.PRICE_CLASS_100,
         });
 
         new BucketDeployment(stack, 'DeployToBucket', {
@@ -107,47 +109,13 @@ export class HostedSite extends Construct {
             ttl: Duration.seconds(30),
         });
 
-        // const stream = new Stream(stack, 'Stream', {
-        //     shardCount: 1,
-        //     retentionPeriod: Duration.days(1),
-        // });
-
-        // // create an IResolvable for the stream arn
-        // const streamArn = stream.streamArn;
-
-        // // create a new CloudFront Realtime Log role
-        // const logRole = new Role(stack, 'LogRole', {
-        //     assumedBy: new ServicePrincipal('cloudfront.amazonaws.com'),
-        //     managedPolicies: [
-        //         ManagedPolicy.fromAwsManagedPolicyName('AdministratorAccess')
-        //     ]
-        // });
-
-        // new CfnRealtimeLogConfig(stack, 'RealtimeLogConfig', {
-        //     endPoints: [
-        //         {
-        //             streamType: 'Kinesis',
-        //             kinesisStreamConfig: {
-        //                 streamArn: streamArn,
-        //                 roleArn: logRole.roleArn
-        //             }
-        //         }
-        //     ],
-        //     name: 'CloudFrontRealtimeLogConfig',
-        //     samplingRate: 100,
-        //     fields: [
-        //         'date',
-        //         'time',
-        //         'x-edge-location',
-        //         'sc-bytes',
-        //         'c-ip',
-        //         'cs-method',
-        //         'cs(Host)',
-        //     ]
-        // });
+        this.bucket = bucket;
+        this.distribution = distribution;
+        this.certificate = certificate;
 
         new CfnOutput(stack, 'DomainName', {
             value: record.domainName,
         });
+
     }
 }
